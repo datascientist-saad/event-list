@@ -1,199 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<title>Event Guest Manager</title>
+    <meta charset="UTF-8">
+    <title>Event Guest Manager</title>
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
-<style>
-body {
-    font-family: Arial, sans-serif;
-    background:#0f172a;
-    color:white;
-    margin:0;
-    padding:40px;
-}
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
 
-.container {
-    max-width:850px;
-    margin:auto;
-    background:#020617;
-    padding:30px;
-    border-radius:12px;
-    box-shadow:0 0 30px rgba(0,0,0,.5);
-}
+        .container {
+            max-width: 850px;
+            margin: auto;
+            background: #020617;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, .5);
+        }
 
-h1 {
-    text-align:center;
-}
+        h1 {
+            text-align: center;
+            font-size: 24px;
+        }
 
-input, button {
-    padding:12px;
-    margin:6px;
-    border-radius:6px;
-    border:none;
-}
+        /* INPUT SECTION */
+        .form-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
 
-input {
-    width:28%;
-}
+        input {
+            padding: 12px;
+            border-radius: 6px;
+            border: none;
+            flex: 1;
+            min-width: 150px;
+        }
 
-button {
-    background:#2563eb;
-    color:white;
-    cursor:pointer;
-}
+        button {
+            padding: 12px;
+            border-radius: 6px;
+            border: none;
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+        }
 
-button:hover {
-    background:#1d4ed8;
-}
+        button:hover {
+            background: #1d4ed8;
+        }
 
-table {
-    width:100%;
-    margin-top:20px;
-    border-collapse:collapse;
-}
+        /* TABLE */
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
 
-th, td {
-    padding:12px;
-    border-bottom:1px solid #334155;
-    text-align:center;
-}
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 500px;
+        }
 
-.actions {
-    display:flex;
-    gap:10px;
-    margin-top:20px;
-}
+        th,
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #334155;
+            text-align: center;
+        }
 
-.actions button {
-    flex:1;
-}
-</style>
+        /* ACTION BUTTONS */
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .actions button {
+            flex: 1;
+        }
+
+        /* MOBILE BREAKPOINT */
+        @media (max-width: 600px) {
+
+            body {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            .form-group {
+                flex-direction: column;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            input {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="container">
+    <div class="container">
 
-<h1>Event Guest List Manager</h1>
+        <h1>Event Guest List Manager</h1>
 
-<div>
-<input id="name" placeholder="Guest Name">
-<input id="rank" placeholder="Rank (Major / Captain...)">
-<input id="idnum" placeholder="Full ID Number">
+        <div class="form-group">
+            <input id="name" placeholder="Guest Name">
+            <input id="rank" placeholder="Rank (Major / Captain...)">
+            <input id="idnum" placeholder="Full ID Number">
+            <button onclick="addGuest()">Add Guest</button>
+        </div>
 
-<button onclick="addGuest()">Add Guest</button>
-</div>
+        <div class="table-wrapper">
+            <table id="guestTableExport">
+                <thead>
+                    <tr>
+                        <th>No.</th>
+                        <th>Name</th>
+                        <th>Rank</th>
+                        <th>ID</th>
+                    </tr>
+                </thead>
+        </div>
 
-<table id="guestTableExport">
-<thead>
-<tr>
-<th>Name</th>
-<th>Rank</th>
-<th>ID</th>
-</tr>
-</thead>
+        <tbody id="guestTable"></tbody>
+        </table>
 
-<tbody id="guestTable"></tbody>
-</table>
+        <div class="actions">
+            <button onclick="exportExcel()">Export Excel</button>
+            <button onclick="clearTable()">Refresh / Clear</button>
+        </div>
 
-<div class="actions">
-<button onclick="exportExcel()">Export Excel</button>
-<button onclick="clearTable()">Refresh / Clear</button>
-</div>
+    </div>
 
-</div>
+    <script>
 
-<script>
+        // Rank priority mapping
+        const rankMap = {
+            "general": 1,
+            "l. general": 2,
+            "major general": 3,
+            "brigadier": 4,
+            "colonel": 5,
+            "l. colonel": 6,
+            "major": 7,
+            "captain": 8,
+            "first l.": 9,
+            "second l.": 10
+        };
 
-// Rank priority mapping
-const rankMap = {
-    "general": 1,
-    "l. general": 2,
-    "major general": 3,
-    "brigadier": 4,
-    "colonel": 5,
-    "l. colonel": 6,
-    "major": 7,
-    "captain": 8,
-    "first l.": 9,
-    "second l.": 10
-};
+        let guests = [];
 
-let guests = [];
+        function addGuest() {
+            const name = document.getElementById("name").value;
+            const rankText = document.getElementById("rank").value.toLowerCase();
+            const id = document.getElementById("idnum").value;
 
-function addGuest(){
-    const name = document.getElementById("name").value;
-    const rankText = document.getElementById("rank").value.toLowerCase();
-    const id = document.getElementById("idnum").value;
+            if (!name || !rankText || !id) {
+                alert("Fill all fields");
+                return;
+            }
 
-    if(!name || !rankText || !id){
-        alert("Fill all fields");
-        return;
-    }
+            if (!rankMap[rankText]) {
+                alert("Invalid Rank");
+                return;
+            }
 
-    if(!rankMap[rankText]){
-        alert("Invalid Rank");
-        return;
-    }
+            guests.push({
+                name,
+                rankText,
+                rankValue: rankMap[rankText],
+                id
+            });
 
-    guests.push({
-        name,
-        rankText,
-        rankValue: rankMap[rankText],
-        id
-    });
+            sortGuests();
+            render();
 
-    sortGuests();
-    render();
+            document.getElementById("name").value = "";
+            document.getElementById("rank").value = "";
+            document.getElementById("idnum").value = "";
+        }
 
-    document.getElementById("name").value="";
-    document.getElementById("rank").value="";
-    document.getElementById("idnum").value="";
-}
+        function sortGuests() {
+            guests.sort((a, b) => {
+                if (a.rankValue !== b.rankValue) return a.rankValue - b.rankValue;
+                return a.id.localeCompare(b.id);
+            });
+        }
 
-function sortGuests(){
-    guests.sort((a,b)=>{
-        if(a.rankValue !== b.rankValue) return a.rankValue - b.rankValue;
-        return a.id.localeCompare(b.id);
-    });
-}
+        function render() {
+            const table = document.getElementById("guestTable");
+            table.innerHTML = "";
 
-function render(){
-    const table = document.getElementById("guestTable");
-    table.innerHTML="";
-
-    guests.forEach(g=>{
-        table.innerHTML += `
+            guests.forEach((g, index) => {
+                table.innerHTML += `
         <tr>
+            <td>${index + 1}</td>
             <td>${g.name}</td>
             <td>${g.rankText.toUpperCase()}</td>
             <td>${g.id}</td>
         </tr>`;
-    });
-}
+            });
+        }
 
-// EXPORT EXCEL
-function exportExcel(){
-    const wb = XLSX.utils.table_to_book(
-        document.getElementById("guestTableExport"),
-        {sheet:"Guests"}
-    );
 
-    XLSX.writeFile(wb,"guest-list.xlsx");
-}
+        // EXPORT EXCEL
+        function exportExcel() {
+            const wb = XLSX.utils.table_to_book(
+                document.getElementById("guestTableExport"),
+                { sheet: "Guests" }
+            );
 
-// CLEAR TABLE
-function clearTable(){
-    if(confirm("Clear all guests?")){
-        guests=[];
-        render();
-    }
-}
+            XLSX.writeFile(wb, "guest-list.xlsx");
+        }
 
-</script>
+        // CLEAR TABLE
+        function clearTable() {
+            if (confirm("Clear all guests?")) {
+                guests = [];
+                render();
+            }
+        }
+
+    </script>
 
 </body>
+
 </html>
