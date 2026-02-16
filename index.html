@@ -176,6 +176,8 @@
         <div class="actions">
             <button onclick="exportExcel()">Export Excel</button>
             <button onclick="clearTable()">Refresh / Clear</button>
+            <button onclick="openSeatingPlan()">View Seating Plan</button>
+
         </div>
 
     </div>
@@ -268,6 +270,11 @@
                 render();
             }
         }
+        
+        function openSeatingPlan(){
+            window.open("seating-plan.pdf", "_blank");
+        }
+
 
     </script>
 
