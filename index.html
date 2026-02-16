@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Event Guest Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 
     <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
@@ -13,36 +15,42 @@
             background: #0f172a;
             color: white;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
         }
 
         .container {
-            max-width: 850px;
-            margin: auto;
             background: #020617;
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 0 30px rgba(0, 0, 0, .5);
+            width: 100%;
+            max-width: 850px;
+            margin: 10px;
         }
 
+        /* TITLE */
         h1 {
             text-align: center;
-            font-size: 24px;
+            font-size: 20px;
+            margin-bottom: 15px;
         }
 
-        /* INPUT SECTION */
+        /* FORM */
         .form-group {
             display: flex;
+            flex-direction: column;
             gap: 10px;
-            flex-wrap: wrap;
         }
 
         input {
             padding: 12px;
             border-radius: 6px;
             border: none;
-            flex: 1;
-            min-width: 150px;
+            width: 100%;
         }
 
         button {
@@ -61,54 +69,76 @@
         /* TABLE */
         .table-wrapper {
             overflow-x: auto;
-            margin-top: 20px;
+            margin-top: 15px;
         }
 
         table {
             width: 100%;
+            min-width: 520px;
             border-collapse: collapse;
-            min-width: 500px;
         }
 
         th,
         td {
-            padding: 12px;
+            padding: 10px;
             border-bottom: 1px solid #334155;
             text-align: center;
         }
 
-        /* ACTION BUTTONS */
+        /* ACTIONS */
         .actions {
             display: flex;
-            gap: 10px;
-            margin-top: 20px;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 25px;
         }
 
-        .actions button {
-            flex: 1;
+
+        /* EMPTY STATE FIX */
+        .table-wrapper {
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* MOBILE BREAKPOINT */
-        @media (max-width: 600px) {
+        /* When no rows exist */
+        #guestTable:empty::after {
+            content: "No guests added yet";
+            color: #64748b;
+            text-align: center;
+            padding: 40px 0;
+            display: block;
+            font-size: 14px;
+        }
+
+
+        /* DESKTOP */
+        @media(min-width:768px) {
 
             body {
-                padding: 15px;
+                padding: 40px;
             }
 
             h1 {
-                font-size: 20px;
+                font-size: 24px;
             }
 
             .form-group {
-                flex-direction: column;
-            }
-
-            .actions {
-                flex-direction: column;
+                flex-direction: row;
+                flex-wrap: wrap;
             }
 
             input {
-                width: 100%;
+                flex: 1;
+                min-width: 180px;
+            }
+
+            .actions {
+                flex-direction: row;
+            }
+
+            .actions button {
+                flex: 1;
             }
         }
     </style>
@@ -137,10 +167,11 @@
                         <th>ID</th>
                     </tr>
                 </thead>
-        </div>
 
-        <tbody id="guestTable"></tbody>
-        </table>
+
+                <tbody id="guestTable"></tbody>
+            </table>
+        </div>
 
         <div class="actions">
             <button onclick="exportExcel()">Export Excel</button>
