@@ -161,9 +161,9 @@
             <table id="guestTableExport">
                 <thead>
                     <tr>
-                        <th>No.</th>
-                        <th>Name</th>
+                        <th>Seat No.</th>
                         <th>Rank</th>
+                        <th>Name</th>
                         <th>ID</th>
                     </tr>
                 </thead>
@@ -187,21 +187,21 @@
         // Rank priority mapping
         const rankMap = {
             "general": 1,
-            "l. general": 2,
+            "lt general": 2,
             "major general": 3,
             "brigadier": 4,
             "colonel": 5,
-            "l. colonel": 6,
+            "lt colonel": 6,
             "major": 7,
             "captain": 8,
-            "first l.": 9,
-            "second l.": 10
+            "first lt": 9,
+            "second lt": 10
         };
 
         let guests = [];
 
         function addGuest() {
-            const name = document.getElementById("name").value;
+            const name = document.getElementById("name").value.toUpperCase();
             const rankText = document.getElementById("rank").value.toLowerCase();
             const id = document.getElementById("idnum").value;
 
@@ -216,8 +216,8 @@
             }
 
             guests.push({
-                name,
                 rankText,
+                name,
                 rankValue: rankMap[rankText],
                 id
             });
@@ -225,8 +225,8 @@
             sortGuests();
             render();
 
-            document.getElementById("name").value = "";
             document.getElementById("rank").value = "";
+            document.getElementById("name").value = "";
             document.getElementById("idnum").value = "";
         }
 
