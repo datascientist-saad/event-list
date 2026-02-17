@@ -161,10 +161,11 @@
             <table id="guestTableExport">
                 <thead>
                     <tr>
-                        <th>Seat No.</th>
+                        
                         <th>Rank</th>
                         <th>Name</th>
                         <th>ID</th>
+                        <th>Seat No.</th>
                     </tr>
                 </thead>
 
@@ -244,10 +245,11 @@
             guests.forEach((g, index) => {
                 table.innerHTML += `
         <tr>
-            <td>${index + 1}</td>
+            
             <td>${g.rankText.toUpperCase()}</td>
             <td>${g.name}</td>
             <td>${g.id}</td>
+            <td>${index + 1}</td>
         </tr>`;
             });
         }
